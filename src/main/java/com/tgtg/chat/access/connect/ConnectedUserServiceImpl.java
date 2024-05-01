@@ -2,6 +2,7 @@ package com.tgtg.chat.access.connect;
 
 import com.tgtg.chat.anonymous.dto.AnonymousDTO;
 import com.tgtg.chat.anonymous.service.AnonymousService;
+import com.tgtg.chat.kafka.producer.SaveResultRequest;
 import com.tgtg.chat.proxyserver.ProxyController;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.redis.core.Cursor;
@@ -24,7 +25,7 @@ public class ConnectedUserServiceImpl implements ConnectedUserService{
     AnonymousService anonymousService;
 
     @Autowired
-    ProxyController proxy;
+    SaveResultRequest kafkaRequest;
 
     @Autowired
     private StringRedisTemplate redisTemplate;
@@ -55,7 +56,7 @@ public class ConnectedUserServiceImpl implements ConnectedUserService{
             // 기존에 설정된 종료 시간이 없으면 새로운 종료 시간 설정
             String existingEndTime = valueOps.get(endTimeKey);
             if (existingEndTime == null) {
-                LocalTime end = now.plusMinutes(1);
+                LocalTime end = now.plusMinutes(2);
                 valueOps.set(endTimeKey, end.format(DateTimeFormatter.ISO_LOCAL_TIME));
                 return end;
             } else {
@@ -217,12 +218,12 @@ public class ConnectedUserServiceImpl implements ConnectedUserService{
                 if(user.getRole().equals("answerA")) {
                     String memberId = anonymousService.findMemberId(roomId, Integer.toString(user.getAnonymousId()));
                     System.out.println(memberId);
-                    proxy.saveResult(memberId,"win");
+                    kafkaRequest.create(memberId,"win");
                 }
                 else if(user.getRole().equals("answerB")) {
                     String memberId = anonymousService.findMemberId(roomId, Integer.toString(user.getAnonymousId()));
                     System.out.println(memberId);
-                    proxy.saveResult(memberId,"lose");
+                    kafkaRequest.create(memberId,"lose");
                 }
                 anonymousService.deleteAnonymous(roomId,user.getAnonymousId());
             }
@@ -232,12 +233,12 @@ public class ConnectedUserServiceImpl implements ConnectedUserService{
                 if(user.getRole().equals("answerB")) {
                     String memberId = anonymousService.findMemberId(roomId, Integer.toString(user.getAnonymousId()));
                     System.out.println(memberId);
-                    proxy.saveResult(memberId,"win");
+                    kafkaRequest.create(memberId,"win");
                 }
                 else if(user.getRole().equals("answerA")) {
                     String memberId = anonymousService.findMemberId(roomId, Integer.toString(user.getAnonymousId()));
                     System.out.println(memberId);
-                    proxy.saveResult(memberId,"lose");
+                    kafkaRequest.create(memberId,"lose");
                 }
                 anonymousService.deleteAnonymous(roomId, user.getAnonymousId());
             }
@@ -247,7 +248,7 @@ public class ConnectedUserServiceImpl implements ConnectedUserService{
                 if(user.getRole().equals("answerA") || user.getRole().equals("answerB")) {
 
                     String memberId = anonymousService.findMemberId(roomId, Integer.toString(user.getAnonymousId()));
-                    proxy.saveResult(memberId,"draw");
+                    kafkaRequest.create(memberId,"draw");
                 }
                 anonymousService.deleteAnonymous(roomId, user.getAnonymousId());
             }

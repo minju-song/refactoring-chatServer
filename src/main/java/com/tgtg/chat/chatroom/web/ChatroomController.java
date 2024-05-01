@@ -4,12 +4,11 @@ import com.tgtg.chat.anonymous.dto.AnonymousDTO;
 import com.tgtg.chat.anonymous.service.AnonymousService;
 import com.tgtg.chat.chatroom.dto.Chatroom;
 import com.tgtg.chat.chatroom.service.ChatroomService;
-import com.tgtg.chat.proxyserver.ProxyController;
+import com.tgtg.chat.kafka.TestConsumer;
+import com.tgtg.chat.kafka.TestProducer;
 import com.tgtg.chat.proxyserver.TrustAllCertificates;
 import com.tgtg.chat.response.ChatResponseDTO;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.stereotype.Controller;
-import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.HashMap;
@@ -29,7 +28,10 @@ public class ChatroomController {
     TrustAllCertificates tr;
 
     @Autowired
-    ProxyController px;
+    TestProducer tp;
+
+    @Autowired
+    TestConsumer tc;
 
     @PostMapping("/getChatroom")
     public ChatResponseDTO startChat(@RequestBody Map<String, Object> requestData) {
@@ -52,9 +54,9 @@ public class ChatroomController {
 
         AnonymousDTO anonymous = anonymousService.createAnonymous(room.getRoomId(), memberId);
 
-        px.testTopic();
-
+        //tp.create(anonymous);
         ChatResponseDTO response = new ChatResponseDTO(anonymous, room);
+
         return response;
     }
 
