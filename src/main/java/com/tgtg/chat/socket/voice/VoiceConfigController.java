@@ -18,7 +18,6 @@ public class VoiceConfigController {
     public String PeerHandleOffer(@Payload String offer, @DestinationVariable(value = "roomId") int roomId,
                                   @DestinationVariable(value = "camKey") String camKey) {
         log.info("[OFFER] {} : {}", camKey, offer);
-        System.out.println(camKey+offer+">>>" );
         return offer;
     }
 
@@ -29,7 +28,6 @@ public class VoiceConfigController {
     public String PeerHandleIceCandidate(@Payload String candidate, @DestinationVariable(value = "roomId") int roomId,
                                          @DestinationVariable(value = "camKey") String camKey) {
         log.info("[ICECANDIDATE] {} : {}", camKey, candidate);
-        System.out.println(camKey+candidate+">>>" );
         return candidate;
     }
 
@@ -38,7 +36,6 @@ public class VoiceConfigController {
     public String PeerHandleAnswer(@Payload String answer, @DestinationVariable(value = "roomId") int roomId,
                                    @DestinationVariable(value = "camKey") String camKey) {
         log.info("[ANSWER] {} : {}", camKey, answer);
-        System.out.println(camKey+answer+">>>" );
         return answer;
     }
 
@@ -47,7 +44,6 @@ public class VoiceConfigController {
     @SendTo("/room/call/key/{roomId}")
     public String callKey(@Payload String message, @DestinationVariable(value = "roomId") int roomId) {
         log.info("[Key] : {}", message);
-        System.out.println(">>>"+message);
         return message;
     }
 

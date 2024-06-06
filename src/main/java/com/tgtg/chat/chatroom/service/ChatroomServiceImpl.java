@@ -6,19 +6,26 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import com.tgtg.chat.access.connect.ConnectedUserService;
 import com.tgtg.chat.anonymous.dto.AnonymousDTO;
 import com.tgtg.chat.chatroom.dto.Chatroom;
+import com.tgtg.chat.subject.SubjectRepository;
+import com.tgtg.chat.subject.domain.Subject;
 import com.tgtg.chat.subject.dto.SubjectDTO;
 import com.tgtg.chat.subject.service.SubjectService;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.mongodb.core.MongoTemplate;
+import org.springframework.data.mongodb.core.aggregation.Aggregation;
+import org.springframework.data.mongodb.core.aggregation.AggregationOperation;
+import org.springframework.data.mongodb.core.aggregation.AggregationResults;
+import org.springframework.data.mongodb.core.query.Criteria;
+import org.springframework.data.mongodb.core.query.Query;
 import org.springframework.data.redis.core.StringRedisTemplate;
 import org.springframework.stereotype.Service;
 
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Set;
-import java.util.TreeSet;
+import java.util.*;
 
 @Service
 public class ChatroomServiceImpl implements ChatroomService{
+
+    private final Random random = new Random();
 
     @Autowired
     ConnectedUserService connectedUserService;
@@ -166,10 +173,18 @@ public class ChatroomServiceImpl implements ChatroomService{
 
     @Override
     public void setTitle(int roomId) {
+        long executionTime = 0;
         boolean isSet = false;
 
-        SubjectDTO subject = subjectService.getSubject();
+        int num = (int) (Math.floor(Math.random() * 4) + 1);
 
+
+        long startTime = System.nanoTime();
+
+        Subject subject = subjectService.getSubject(num);
+
+        long endTime = System.nanoTime(); // 종료 시간 기록
+        executionTime = (endTime - startTime);
         String key = "chatRooms";
         List<String> roomsString = redisTemplate.opsForList().range(key, 0, -1);
 
@@ -196,6 +211,11 @@ public class ChatroomServiceImpl implements ChatroomService{
         else {
             System.out.println("해당하는 방이 없습니다.");
         }
+
+
+
+        double msExecutionTime = executionTime / 1_000_000.0;
+        System.out.println("평균 실행 시간 : " + msExecutionTime + " ms");
     }
 
     @Override

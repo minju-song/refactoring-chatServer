@@ -3,7 +3,6 @@ package com.tgtg.chat.access.connect;
 import com.tgtg.chat.anonymous.dto.AnonymousDTO;
 import com.tgtg.chat.anonymous.service.AnonymousService;
 import com.tgtg.chat.kafka.producer.SaveResultRequest;
-import com.tgtg.chat.proxyserver.ProxyController;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.redis.core.Cursor;
 import org.springframework.data.redis.core.ScanOptions;
@@ -34,7 +33,6 @@ public class ConnectedUserServiceImpl implements ConnectedUserService{
     public void userEntered(int roomId, AnonymousDTO anonymous) {
         String key = "chatRoom:" + roomId + ":members";
         String value = anonymousService.serializeAnonymousDTO(anonymous); // AnonymousDTO 객체를 직렬화하는 메소드 필요
-        System.out.println("들어옴>>"+value);
         redisTemplate.opsForSet().add(key, value);
     }
 
@@ -77,8 +75,6 @@ public class ConnectedUserServiceImpl implements ConnectedUserService{
             int count = (countStr != null) ? Integer.parseInt(countStr) : 0;
             count++; // 횟수 증가
             valueOps.set(countKey, String.valueOf(count));
-
-            System.out.println("A" + count);
         }
         else {
             String countKey = "chatRoom:" + roomId + ":voteResultB";
@@ -87,8 +83,6 @@ public class ConnectedUserServiceImpl implements ConnectedUserService{
             int count = (countStr != null) ? Integer.parseInt(countStr) : 0;
             count++; // 횟수 증가
             valueOps.set(countKey, String.valueOf(count));
-
-            System.out.println("B" + count);
         }
     }
 
@@ -118,8 +112,6 @@ public class ConnectedUserServiceImpl implements ConnectedUserService{
         String bStr = B_valueOps.get(bKey);
         int answerB = (bStr != null) ? Integer.parseInt(bStr) : 0;
 
-        System.out.println("answerA : "+answerA);
-        System.out.println("answerB : "+answerB);
         if(answerA > answerB) return "answerA";
         else if (answerA < answerB) return "answerB";
         else return "draw";
@@ -217,12 +209,10 @@ public class ConnectedUserServiceImpl implements ConnectedUserService{
             for (AnonymousDTO user : memberDTOs) {
                 if(user.getRole().equals("answerA")) {
                     String memberId = anonymousService.findMemberId(roomId, Integer.toString(user.getAnonymousId()));
-                    System.out.println(memberId);
                     kafkaRequest.create(memberId,"win");
                 }
                 else if(user.getRole().equals("answerB")) {
                     String memberId = anonymousService.findMemberId(roomId, Integer.toString(user.getAnonymousId()));
-                    System.out.println(memberId);
                     kafkaRequest.create(memberId,"lose");
                 }
                 anonymousService.deleteAnonymous(roomId,user.getAnonymousId());
@@ -232,12 +222,10 @@ public class ConnectedUserServiceImpl implements ConnectedUserService{
             for (AnonymousDTO user : memberDTOs) {
                 if(user.getRole().equals("answerB")) {
                     String memberId = anonymousService.findMemberId(roomId, Integer.toString(user.getAnonymousId()));
-                    System.out.println(memberId);
                     kafkaRequest.create(memberId,"win");
                 }
                 else if(user.getRole().equals("answerA")) {
                     String memberId = anonymousService.findMemberId(roomId, Integer.toString(user.getAnonymousId()));
-                    System.out.println(memberId);
                     kafkaRequest.create(memberId,"lose");
                 }
                 anonymousService.deleteAnonymous(roomId, user.getAnonymousId());

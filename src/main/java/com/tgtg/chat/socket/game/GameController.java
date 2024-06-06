@@ -35,19 +35,15 @@ public class GameController {
     //게임방 타이머 현재시간
     @MessageMapping("/{roomId}/sendTime")
     public void gameTimer(@DestinationVariable int roomId) {
-        System.out.println("입장완");
         LocalTime endTime = connectedUserService.gameStartUser(roomId);
-        System.out.println(endTime+">>");
         if(endTime != null) {
             simpMessagingTemplate.convertAndSend("/room/" + roomId + "/sendTime", endTime);
-            System.out.println("다 들어옴" + endTime);
         }
     }
 
     //게임방 투표
     @MessageMapping("/{roomId}/gameVote")
     public void gameVote(@DestinationVariable int roomId, int gameSelect) {
-        System.out.println("2server 결과~~" + gameSelect);
         connectedUserService.gameVoteCount(roomId, gameSelect);
     }
 
@@ -57,7 +53,6 @@ public class GameController {
         if(connectedUserService.getZeroCount(roomId)) {
             String result = connectedUserService.getVoteResult(roomId);
 //    		먼저 DB에 저장
-            System.out.println("결과 : "+result);
             connectedUserService.saveResult(roomId, result);
 //    		관련정보 삭제
             connectedUserService.deleteRoom(roomId);

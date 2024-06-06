@@ -43,6 +43,7 @@ public class ReadyController {
     public int ready(@DestinationVariable int roomId) {
         //준비인원 추가
         readyUserService.readyUser(roomId);
+
         //준비한 인원 수가 방에 접속한 인원 수와 같고, 접속한 인원 수가 3명 이상이면 게임 시작
         if(readyUserService.getReady(roomId) == connectedUserService.getConnectedUserCount(roomId) &&
                 readyUserService.getReady(roomId)>= 3	) {
@@ -55,16 +56,17 @@ public class ReadyController {
             role.setRoleList(memberList);
             //텍스트 게임방 url
             if(roomId < 100) {
-                role.setUrl("/user/textGame?roomId=");
+                role.setUrl("/user/text?roomId=");
             }
             //음성 게임방 url
             else {
-                role.setUrl("/user/voiceGame?roomId=");
+                role.setUrl("/user/voice?roomId=");
             }
 
             startGame(roomId, role);
             //simpMessagingTemplate.convertAndSend("/room/" + roomId + "/startGame", role);
         }
+
         return readyUserService.getReady(roomId);
     }
 
